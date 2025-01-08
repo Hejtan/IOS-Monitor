@@ -13,6 +13,9 @@ struct IOS_MonitorApp: App {
         WindowGroup {
             TabBarWrapper()
         }
+        .onAppear {
+            BackgroundMusicManager.shared.togglePlayback()
+        }
     }
 }
 

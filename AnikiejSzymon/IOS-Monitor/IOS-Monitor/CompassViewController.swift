@@ -1,6 +1,7 @@
 import UIKit
 
 // compass: https://www.flaticon.com/free-icon/compass_1218751?related_id=1218700&origin=search
+// arrow: https://www.flaticon.com/free-icons/right
 
 
 class CompassViewController: UIViewController {
@@ -21,7 +22,7 @@ class CompassViewController: UIViewController {
         view.addSubview(compassBackground)
         
         // Compass needle image
-        let needle = UIImageView(image: UIImage(named: "needle"))
+        let needle = UIImageView(image: UIImage(named: "arrow_south"))
         needle.contentMode = .scaleAspectFit
         needle.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(needle)
