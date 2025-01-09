@@ -12,6 +12,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     private var lastSelectedIndex = 0
     
     override func viewDidLoad() {
+        BackgroundMusicManager().togglePlayback()
         super.viewDidLoad()
         self.delegate = self
         // Map Tab

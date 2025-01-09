@@ -5,8 +5,16 @@ import UIKit
 
 
 class CompassViewController: UIViewController {
+        
+    init(degrees: CGFloat) {
+        self.degrees = degrees
+        super.init(nibName: nil, bundle: nil)
+    }
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
-    var degrees: CGFloat = 0 // Set this value before presenting the screen
+    var degrees: CGFloat = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,7 +24,7 @@ class CompassViewController: UIViewController {
     
     private func setupCompass() {
         // Compass background image
-        let compassBackground = UIImageView(image: UIImage(named: "compassBackground"))
+        let compassBackground = UIImageView(image: UIImage(named: "compass"))
         compassBackground.contentMode = .scaleAspectFit
         compassBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(compassBackground)
@@ -31,12 +39,12 @@ class CompassViewController: UIViewController {
         NSLayoutConstraint.activate([
             compassBackground.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             compassBackground.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            compassBackground.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
+            compassBackground.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.9),
             compassBackground.heightAnchor.constraint(equalTo: compassBackground.widthAnchor),
             
             needle.centerXAnchor.constraint(equalTo: compassBackground.centerXAnchor),
             needle.centerYAnchor.constraint(equalTo: compassBackground.centerYAnchor),
-            needle.widthAnchor.constraint(equalTo: compassBackground.widthAnchor, multiplier: 0.5),
+            needle.widthAnchor.constraint(equalTo: compassBackground.widthAnchor, multiplier: 0.7),
             needle.heightAnchor.constraint(equalTo: needle.widthAnchor)
         ])
         

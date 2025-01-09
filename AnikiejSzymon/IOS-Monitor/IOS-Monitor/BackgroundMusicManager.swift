@@ -13,7 +13,7 @@ class BackgroundMusicManager: ObservableObject {
     }
     
     private func setupAudioPlayer() {
-        if let path = Bundle.main.path(forResource: "background_music", ofType: "mp3") {
+        if let path = Bundle.main.path(forResource: "office-tour-corporate-background-music-250621", ofType: "mp3") {
             let url = URL(fileURLWithPath: path)
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: url)

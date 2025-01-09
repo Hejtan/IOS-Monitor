@@ -46,6 +46,37 @@ class HomeViewController: UIViewController {
     
 }
 
+struct FadeInOnScroll: ViewModifier {
+    @State private var isVisible = false
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(Color(red: 245/255, green: 245/255, blue: 245/255))
+            .shadow(radius: 4)
+            .cornerRadius(12)
+            .opacity(isVisible ? 1 : 0)
+            .offset(x: isVisible ? 0 : 50)
+            .animation(.easeOut(duration: 0.5), value: isVisible)
+            .background(GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        checkVisibility(frame: geometry.frame(in: .global))
+                    }
+                    .onChange(of: geometry.frame(in: .global)) { frame in
+                        checkVisibility(frame: frame)
+                    }})
+    }
+    private func checkVisibility(frame: CGRect) {
+        let midY = frame.midY
+        let screenHeight = UIScreen.main.bounds.height
+        if midY < screenHeight * 0.9 && midY > 0 {
+            isVisible = true
+        } else {
+            isVisible = false
+        }
+    }
+}
+
 struct HomeView: View {
     
     let weather: Dictionary<String, Double>
@@ -82,6 +113,7 @@ struct HomeView: View {
                 }
             }
         }
+        .background(Color(red: 230/255, green: 230/255, blue: 230/255))
     }
 }
 
@@ -102,12 +134,15 @@ struct CloudsView: View {
                         .font(.title3)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.leading)
+                        .foregroundStyle(.gray)
                     Text("\(String(format: "%.0f", value))%")
                         .font(.title)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.leading)
+                        .foregroundStyle(.gray)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
         else {
             VStack(spacing: 1) {
@@ -121,12 +156,15 @@ struct CloudsView: View {
                         .font(.title3)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.leading)
+                        .foregroundStyle(.yellow)
                     Text("\(String(format: "%.0f", value))%")
                         .font(.title)
                         .fontWeight(.bold)
                         .multilineTextAlignment(.leading)
+                        .foregroundStyle(.yellow)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
     }
 }
@@ -136,11 +174,10 @@ struct TemperatureView: View {
     var body: some View {
         if value < 10 {
             HStack(alignment: .center, spacing: 5) {
-                Image("termometer_cold")
+                Image("thermometer_3")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 100, height: 150)
-                    .shadow(radius: 5)
                 
                 VStack(alignment: .center, spacing: 0) {
                     Text("Jest zimno! Temperatura wynosi:")
@@ -155,14 +192,14 @@ struct TemperatureView: View {
                         .multilineTextAlignment(.leading)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
         else if value > 20 {
             HStack(alignment: .center, spacing: 5) {
-                Image("termometer_hot")
+                Image("thermometer_1")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 100, height: 150)
-                    .shadow(radius: 5)
                 
                 VStack(alignment: .center, spacing: 0) {
                     Text("Jest gorąco! Temperatura wynosi:")
@@ -177,14 +214,14 @@ struct TemperatureView: View {
                         .multilineTextAlignment(.leading)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
         else {
             HStack(alignment: .center, spacing: 5) {
-//                Image("termometer_warm")
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//                    .frame(width: 100, height: 150)
-//                    .shadow(radius: 5)
+                Image("thermometer_2")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 150)
                 
                 VStack(alignment: .center, spacing: 0) {
                     Text("Jest ciepło! Temperatura wynosi:")
@@ -199,7 +236,7 @@ struct TemperatureView: View {
                         .multilineTextAlignment(.leading)
                 }
             }
-            
+            .modifier(FadeInOnScroll())
         }
     }
 }
@@ -214,10 +251,11 @@ struct RainView: View {
                     Text("Nie ma żadnych opadów!")
                         .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.black)
                         .multilineTextAlignment(.leading)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
         else if type == 1.0 {
             HStack(alignment: .center, spacing: 5) {
@@ -230,15 +268,16 @@ struct RainView: View {
                     Text("Można oczekiwać deszczu! Oczekiwane opady:")
                         .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.gray)
                         .multilineTextAlignment(.leading)
                     Text("\(String(format: "%.0f", value))%")
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.gray)
                         .multilineTextAlignment(.leading)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
         else {
             HStack(alignment: .center, spacing: 5) {
@@ -251,38 +290,53 @@ struct RainView: View {
                     Text("Można oczekiwać śniegu! Oczekiwane opady:")
                         .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.teal)
                         .multilineTextAlignment(.leading)
                     Text("\(String(format: "%.0f", value))%")
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.teal)
                         .multilineTextAlignment(.leading)
                 }
             }
+            .modifier(FadeInOnScroll())
         }
     }
 }
 
+
+struct CompassViewWrapper: UIViewControllerRepresentable {
+    let direction: Double
+    typealias UIViewControllerType = CompassViewController
+    func makeUIViewController(context: Context) -> CompassViewController {
+        return CompassViewController(degrees: direction)
+    }
+    func updateUIViewController(_ uiViewController: CompassViewController, context: Context) {
+        
+    }
+}
 struct WindView: View {
     let speed: Double
     let direction: Double
     var body: some View {
-        Vstack(alignment: .center, spacing: 5) {
+        VStack(alignment: .center, spacing: 5) {
             VStack(alignment: .center, spacing: 0) {
                 Text("Wiatr wieje z prędkością:")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.black)
                     .multilineTextAlignment(.leading)
                 Text("\(String(format: "%.0f", speed)) km/h")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(.black)
                     .multilineTextAlignment(.leading)
             }
-            CompassViewController()
+            CompassViewWrapper(direction: direction)
+                .frame(width: 100, height: 100)
+                
         }
+        .modifier(FadeInOnScroll())
     }
 }
 
@@ -293,14 +347,15 @@ struct PressureView: View {
             Text("Ciśnienie wynosi:")
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.black)
                 .multilineTextAlignment(.leading)
             Text("\(String(format: "%.0f", value)) hPa")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.black)
                 .multilineTextAlignment(.leading)
         }
+        .modifier(FadeInOnScroll())
     }
 }
 
@@ -319,6 +374,7 @@ struct HumidityView: View {
                 .foregroundStyle(.blue)
                 .multilineTextAlignment(.leading)
         }
+        .modifier(FadeInOnScroll())
     }
 }
 
@@ -329,14 +385,15 @@ struct VisibilityView: View {
             Text("Widoczność wynosi:")
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.black)
                 .multilineTextAlignment(.leading)
             Text("\(String(format: "%.0f", value)) km")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.black)
                 .multilineTextAlignment(.leading)
         }
+        .modifier(FadeInOnScroll())
     }
 }
 
@@ -352,81 +409,104 @@ struct PollenView: View {
     let cottonwood: Double
     let oak: Double
     let pine: Double
+    let colortable: Dictionary <Double,  Color> = [
+        0: .black,
+        1: .green,
+        2: .mint,
+        3: .yellow,
+        4: .orange,
+        5: .red,
+        6: .purple,
+        7: .brown
+    ]
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             Text("Prognoza pyłków:")
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.black)
                 .multilineTextAlignment(.leading)
             Text("Trawa: \(String(format: "%.0f", grasses))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[grasses] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Ambrozja: \(String(format: "%.0f", ragweed))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[ragweed] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Oliwka: \(String(format: "%.0f", olive))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[olive] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Bylica: \(String(format: "%.0f", mugwort))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[mugwort] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Leszczyna: \(String(format: "%.0f", hazel))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[hazel] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Jesion: \(String(format: "%.0f", ash))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[ash] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Brzoza: \(String(format: "%.0f", birch))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[birch] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Topola: \(String(format: "%.0f", cottonwood))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[cottonwood] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Dąb: \(String(format: "%.0f", oak))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[oak] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("Sosna: \(String(format: "%.0f", pine))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[pine] ?? .black)
                 .multilineTextAlignment(.leading)
         }
+        .modifier(FadeInOnScroll())
     }
 }
 
 struct AirQualityView: View {
     let value: Double
+    let colortable: Dictionary <Double,  Color> = [
+        0: .black,
+        1: .green,
+        2: .mint,
+        3: .yellow,
+        4: .orange,
+        5: .red,
+        6: .purple,
+        7: .brown
+    ]
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             Text("Jakość powietrza wynosi:")
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[value] ?? .black)
                 .multilineTextAlignment(.leading)
             Text("\(String(format: "%.0f", value))")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .foregroundStyle(colortable[value] ?? .black)
                 .multilineTextAlignment(.leading)
         }
+        .modifier(FadeInOnScroll())
     }
+    
 }
